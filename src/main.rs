@@ -10,7 +10,13 @@ fn main() {
         std::process::exit(1);
     });
 
-    let resized = resizer::resize(&img);
+    let opts = resizer::ResizeOptions {
+        width: args.width,
+        height: args.height,
+        scale: args.scale,
+    };
+
+    let resized = resizer::resize(&img, &opts);
     let rows = renderer::render(&resized);
 
     if let Some(output_path) = &args.output {

@@ -24,6 +24,11 @@ A single-binary Rust CLI tool (`asic_art`) that reads an image file, resizes it 
 12. As a terminal user, I want to save the ASCII art to a file with `--output`, so that I can share or embed the output in documentation.
 13. As a terminal user, I want the saved file to have ANSI codes stripped, so that the text file is readable in any editor.
 14. As a terminal user, I want a clear error message when the input file does not exist, so that I can quickly fix the path.
+21. As a terminal user, I want to set the output width with `--width <N>`, so that I can render images at a specific column count regardless of my terminal size.
+22. As a terminal user, I want to set the output height with `--height <N>`, so that I can fit the art into a fixed canvas without relying on aspect-ratio correction.
+23. As a terminal user, I want to scale the output with `--scale <F>`, so that I can quickly halve or double the size without calculating exact dimensions.
+24. As a terminal user, I want `--scale` to multiply the resolved width (whether from `--width` or auto-detected), so that scaling behaves consistently in both cases.
+25. As a terminal user, I want `--width` and `--scale` to be usable together with `--height`, so that I have full control over both dimensions independently.
 15. As a terminal user, I want a clear error message when the image format is unsupported, so that I understand what formats are accepted.
 16. As a developer, I want the image loading step to be isolated from the rendering step, so that I can test each component independently.
 17. As a developer, I want the character mapper to be a pure function of brightness, so that it can be unit tested without terminal or file I/O.
@@ -39,6 +44,9 @@ A single-binary Rust CLI tool (`asic_art`) that reads an image file, resizes it 
 - Built with `clap` (derive API)
 - Positional argument: `<input>` — path to the image file
 - Optional flag: `--output <path>` — write plain-text (ANSI-stripped) output to a file
+- Optional flag: `--width <N>` (u32 ≥ 1) — explicit output width in columns
+- Optional flag: `--height <N>` (u32 ≥ 1) — explicit output height in rows
+- Optional flag: `--scale <F>` (f32 > 0) — scale factor on resolved width
 - Prints `--help` with descriptions for all arguments
 
 **2. Image Loader (`loader` module)**
@@ -48,11 +56,13 @@ A single-binary Rust CLI tool (`asic_art`) that reads an image file, resizes it 
 - Returns an `RgbImage` (all pixels as 8-bit RGB)
 
 **3. Resizer / Sampler (`resizer` module)**
-- Detects terminal width using `terminal_size` crate (or `crossterm::terminal::size()`)
-- Fallback terminal width: 80 columns
-- Target character columns = terminal width
-- Target character rows = `(image_height / image_width) * terminal_width * ASPECT_CORRECTION`
+- Accepts a `ResizeOptions` struct: `width: Option<u32>`, `height: Option<u32>`, `scale: Option<f32>`
+- Width resolution order: explicit `--width` → terminal auto-detect → fallback 80
+- `--scale` is applied on top of the resolved width: `final_width = base_width * scale`
+- Height resolution order: explicit `--height` → aspect-ratio formula
+- Aspect formula: `(image_height / image_width) * final_width * ASPECT_CORRECTION`
 - `ASPECT_CORRECTION` = 0.5 (monospace chars are roughly 2× taller than wide)
+- Both `final_width` and `final_height` are clamped to a minimum of 1
 - Uses `image::imageops::resize` with `FilterType::Lanczos3` for quality downscaling
 
 **4. Character Mapper (`mapper` module)**
