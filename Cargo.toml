@@ -1,0 +1,18 @@
+[package]
+name = "asic_art"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+
+[[bin]]
+name = "asic_art"
+path = "src/main.rs"
+
+[lib]
+name = "asic_art_lib"
+path = "src/lib.rs"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "bmp", "tiff", "webp"] }
+clap = { version = "4", features = ["derive"] }
+terminal_size = "0.3"
