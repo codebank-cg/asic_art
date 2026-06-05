@@ -2,21 +2,23 @@ use std::fs;
 use std::io::{self, Write};
 use std::path::Path;
 
-pub fn write_stdout(rows: &[String]) {
+use image::RgbImage;
+
+use crate::renderer::render;
+
+pub fn write_stdout(img: &RgbImage, grayscale: bool) {
+    let mut buf = Vec::with_capacity(img.width() as usize * img.height() as usize * 24);
+    render(img, &mut buf, grayscale);
     let stdout = io::stdout();
     let mut handle = stdout.lock();
-    for row in rows {
-        handle.write_all(row.as_bytes()).unwrap();
-        handle.write_all(b"\n").unwrap();
-    }
+    handle.write_all(&buf).unwrap();
 }
 
-pub fn write_file(rows: &[String], path: &Path) -> Result<(), String> {
-    let plain: String = rows
-        .iter()
-        .map(|row| strip_ansi(row))
-        .collect::<Vec<_>>()
-        .join("\n");
+pub fn write_file(img: &RgbImage, path: &Path, grayscale: bool) -> Result<(), String> {
+    let mut buf = Vec::new();
+    render(img, &mut buf, grayscale);
+    let raw = String::from_utf8_lossy(&buf);
+    let plain = strip_ansi(&raw);
     fs::write(path, plain).map_err(|e| format!("Failed to write '{}': {}", path.display(), e))
 }
 

@@ -16,3 +16,9 @@ path = "src/lib.rs"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "bmp", "tiff", "webp"] }
 clap = { version = "4", features = ["derive"] }
 terminal_size = "0.3"
+video-rs = "0.11.0"
+nokhwa = { version = "0.10.11", features = ["input-native"] }
+ctrlc = "3.5.2"
+scopeguard = "1.2.0"
+rodio = "0.17"
+crossterm = "0.29.0"
