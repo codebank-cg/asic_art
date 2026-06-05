@@ -28,13 +28,20 @@ OPTIONS
     --video <file>       Play a video file (MP4, MKV, WebM, MOV, AVI, ...)
     --cam [<index>]      Stream from webcam (device index, default 0)
 
-    --output <file>      Write plain-text output (ANSI codes stripped) to a file
-    --width <N>          Set output width in columns (default: terminal width)
-    --height <N>         Set output height in rows (default: aspect-ratio corrected)
-    --scale <F>          Scale factor on the resolved width, e.g. 0.5 = half, 2.0 = double
+    --output, -o <file>  Write plain-text output (ANSI codes stripped) to a file
+                           (not usable with --video or --cam)
+    --width <N>          Set output width in columns (≥ 1, default: terminal width)
+    --height <N>         Set output height in rows (≥ 1, default: aspect-ratio corrected)
+    --scale <F>          Scale factor on the resolved width (> 0), e.g. 0.5, 2.0
     --fps <F>            Webcam capture frame rate (default: 15, does not affect video files)
     --bw                 Render in grayscale (black-and-white) using luminance only
     --help               Print help
+
+NOTES
+-----
+
+  --video and --cam are mutually exclusive with each other, with a positional
+  <image> argument, and with --output. Only one input mode at a time.
 
 
 EXAMPLES
